@@ -6,14 +6,19 @@ const TABLE: [(i32,i32); 4] = [(0,0), (-1,3),
 
 #[derive(Debug)]
 enum Strategy {
+    Random,
     Generous,
     Greedy,
-    Grudger,
-    Thankful,
-    Mimic,
-    Antimimic,
     Alternating,
-    Random,
+    BiAlternating,
+    QuinAlternating,
+    PhaseAlternating,
+    Mimic,
+    ForgivingMimic,
+    Antimimic,
+    Grudger,
+    ForgivingGrudger,
+    Thankful,
     Tester,
 }
 
@@ -21,15 +26,23 @@ impl Strategy {
     fn decide(&self, mymoves: &[bool], oppmoves: &[bool]) -> bool {
         use Strategy::*;
         match self {
-            Generous => true, // always split
+            Random => rand::random_bool(0.5), // choose randomly
+            Generous => true, // always share
             Greedy => false, // always steal
-            Grudger => !oppmoves.contains(&false), // generous, unless opponent steals, then greedy
-            Thankful => oppmoves.contains(&true), // greedy, unless opponent shares, then generous
-            Mimic => *oppmoves.last().unwrap_or(&true), // split, then opponents last move
+            Alternating => mymoves.len() % 2 < 1, // share steal share steal ...
+            BiAlternating => mymoves.len() % 4 < 2, // share share, steal steal, ...
+            QuinAlternating => mymoves.len() % 10 < 5, // share x5, steal x5, ...
+            PhaseAlternating => !mymoves.len() % 2 < 1, // steal share steal share ...
+            Mimic => *oppmoves.last().unwrap_or(&true), // share, then opponents last move
+            ForgivingMimic => { // steal if opponent has stolen in the previous 2 rounds
+                if oppmoves.len() < 2 {true} // share for first two turns
+                else {!(!oppmoves[oppmoves.len()-2] && !oppmoves[oppmoves.len()-1])}
+            }, 
             Antimimic => !oppmoves.last().unwrap_or(&true), // steal, then not opponents last move
-            Alternating => mymoves.len().is_multiple_of(2), // atlernate split steal
-            Random => rand::random_bool(0.5),
-            Tester => match oppmoves.len() { // split steal split split, if on round 3 opponent split, become greedy, else become mimic
+            Grudger => !oppmoves.contains(&false), // generous, unless opponent steals, then greedy
+            ForgivingGrudger => oppmoves.iter().filter(|b| !*b).count() < 2, // grudges if opponent steals twice
+            Thankful => oppmoves.contains(&true), // greedy, unless opponent shares, then generous, aka antigrudger
+            Tester => match oppmoves.len() { // share steal share share, if on round 3 opponent share, become greedy, else become mimic
                 0 => true, 1 => false, 2 => true, 3 => true,
                 _ => if oppmoves[2] { false } else { *oppmoves.last().unwrap_or(&true) }
             }
@@ -41,9 +54,9 @@ fn main() {
     // return true: share
     // return false: steal
 
-    const STRATCOUNT: usize = 9;
+    const STRATCOUNT: usize = 14;
     use Strategy::*;
-    let strategies: [Strategy; STRATCOUNT] = [Generous, Greedy, Grudger, Thankful, Mimic, Antimimic, Alternating, Random, Tester];
+    let strategies: [Strategy; STRATCOUNT] = [Random, Generous, Greedy, Alternating, BiAlternating, QuinAlternating, PhaseAlternating, Mimic, ForgivingMimic, Antimimic, Grudger, ForgivingGrudger, Thankful, Tester];
     let mut scores: [i32; STRATCOUNT] = [0; STRATCOUNT];
 
     println!("Games");
