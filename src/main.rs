@@ -1,3 +1,5 @@
+use std::fmt;
+
 //                (a,b)     a: steal  share      b:
 // const TABLE: [(i32,i32); 4] = [(2,2), (2,8),  // steal
 //                                (8,2), (5,5)]; // share
@@ -7,16 +9,12 @@ const TABLE: [(i32,i32); 4] = [(0,0), (-1,3),
 const ROUNDS: u32 = 100;
 const MISPLAY_CHANCE: f64 = 0.05;
 
-#[derive(Debug)]
+//#[derive(Debug)]
 enum Strategy {
-    Random,
+    Random(f64), // probability to share
     Generous,
     Greedy,
-    Periodic(&'static [bool]),
-    Alternating,
-    BiAlternating,
-    QuinAlternating,
-    PhaseAlternating,
+    Periodic(u32, u32), // period, seq
     Copycat,
     Copykitten,
     AntiCopycat,
@@ -28,22 +26,20 @@ enum Strategy {
     Betrayer,
     Pavlov,
     Thoughtful,
-    CheaterLeader,
-    CheaterFollower(u8),
+    CultLeader,
+    Cultist(u8),
 }
 
 impl Strategy {
     fn decide(&self, mymoves: &[bool], oppmoves: &[bool]) -> bool {
         use Strategy::*;
         match self {
-            Random => rand::random_bool(0.5), // choose randomly
+            Random(p) => rand::random_bool(*p), // choose randomly
             Generous => true, // always share
             Greedy => false, // always steal
-            Periodic(b) => b[mymoves.len() % b.len()],
-            Alternating => mymoves.len() % 2 < 1, // share steal share steal ...
-            BiAlternating => mymoves.len() % 4 < 2, // share share, steal steal, ...
-            QuinAlternating => mymoves.len() % 10 < 5, // share x5, steal x5, ...
-            PhaseAlternating => !mymoves.len() % 2 < 1, // steal share steal share ...
+            Periodic(p, b) => { // period, sequence of moves
+                b & (1<<(p - (mymoves.len() as u32 % *p)-1)) != 0 // pick bit from binary num by logical AND with leftshifted 1
+            },
             Copycat => *oppmoves.last().unwrap_or(&true), // share, then opponents last move
             Copykitten => { // steal if opponent has stolen in the previous 2 rounds
                 if oppmoves.len() < 2 {true} // share for first two turns
@@ -64,7 +60,7 @@ impl Strategy {
             }
             Pavlov => mymoves.last().unwrap_or(&true) == oppmoves.last().unwrap_or(&true),
             Thoughtful if oppmoves.len() <= 5 => [true, true, false, true, false, true][oppmoves.len()],
-            Thoughtful => { // probabilistic model of payout, makes decisions depending on payout chance
+            Thoughtful => { // probabilistic model, makes decisions depending on payout chance
                 const PAYRATE: f64 = 0.5;
                 const Z: f64 = 1.5;
                 let n = (oppmoves.len() - 1) as f64;
@@ -100,18 +96,43 @@ impl Strategy {
                     false
                 }
             }
-            CheaterLeader if oppmoves.len() <= 5 => [false, true, false, true, true, false][oppmoves.len()],
-            CheaterLeader => { // if paired against follower, become greedy, else become copycat
+            CultLeader if oppmoves.len() <= 5 => [false, true, false, true, true, false][oppmoves.len()],
+            CultLeader => { // if paired against follower, become greedy, else become copycat
                 if oppmoves[0..6] == [true, false, true, false, false, true] { 
                     false
                 } else {
                     *oppmoves.last().unwrap_or(&true)
                 }
             },
-            CheaterFollower(_) if oppmoves.len() <= 5 => [true, false, true, false, false, true][oppmoves.len()],
-            CheaterFollower(_) => { // if paired against leader, become generous, else become greedy
+            Cultist(x) if oppmoves.len() <= 5 => [true, false, true, false, false, true][oppmoves.len()],
+            Cultist(_x) => { // if paired against leader, become generous, else become greedy
                 oppmoves[0..6] == [false, true, false, true, true, false]
             },
+        }
+    }
+}
+
+impl std::fmt::Debug for Strategy {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use Strategy::*;
+        match self {
+            Random(p) => write!(f, "Random ({p})"), 
+            Generous => write!(f, "Generous"), 
+            Greedy => write!(f, "Greedy"), 
+            Periodic(_p, b) => write!(f, "Periodic ({b:b})"), 
+            Copycat => write!(f, "Copycat"), 
+            Copykitten => write!(f, "Copykitten"), 
+            AntiCopycat => write!(f, "AntiCopycat"), 
+            Grudger => write!(f, "Grudger"), 
+            ForgivingGrudger => write!(f, "Forgiving Grudger"), 
+            Thankful => write!(f, "Thankful"), 
+            CautiousThankful => write!(f, "Cautious Thankful"), 
+            Tester => write!(f, "Tester"), 
+            Betrayer => write!(f, "Betrayer"), 
+            Pavlov => write!(f, "Pavlov"), 
+            Thoughtful => write!(f, "Thoughtful"), 
+            CultLeader => write!(f, "Cult Leader"), 
+            Cultist(n) => write!(f, "Cultist {n}"), 
         }
     }
 }
@@ -122,14 +143,15 @@ fn main() {
 
     use Strategy::*;
     let strategies = 
-        [Random, Generous, Greedy, Alternating, BiAlternating, QuinAlternating, PhaseAlternating,
-         Copycat, Copykitten, AntiCopycat, Grudger, ForgivingGrudger, Thankful, CautiousThankful, 
+        [Random(0.25), Random(0.50), Random(0.75), Generous, Greedy, 
+         Periodic(2, 0b10), Periodic(2, 0b01), Periodic(4, 0b1100), Periodic(10, 0b1111100000), 
+         Copycat, Copykitten, AntiCopycat, 
+         Grudger, ForgivingGrudger, Thankful, CautiousThankful, 
          Tester, Betrayer, Pavlov, Thoughtful, 
-         CheaterLeader, CheaterFollower(1), CheaterFollower(2), CheaterFollower(3), CheaterFollower(4), CheaterFollower(5)
+         CultLeader, Cultist(1), Cultist(2), Cultist(3), Cultist(4), Cultist(5), 
          ];
     let stratcount = strategies.len();
     let mut scores = vec![0; stratcount];
-    
 
     println!("Games");
     for a in 0..strategies.len() {
@@ -159,6 +181,22 @@ fn play(a: &Strategy, b: &Strategy, rounds: u32) -> (i32, i32) { // returns tota
     for _round in 0..rounds { // play for n rounds
         let move_a = a.decide(&moves_a, &moves_b) ^ rand::random_bool(MISPLAY_CHANCE);
         let move_b = b.decide(&moves_b, &moves_a) ^ rand::random_bool(MISPLAY_CHANCE);
+        let round_score = TABLE[if move_a {1} else {0} | if move_b {2} else {0}]; // will never exceed 3
+        sum_score = (sum_score.0 + round_score.0, sum_score.1 + round_score.1);
+        moves_a.push(move_a);
+        moves_b.push(move_b);
+    }
+    sum_score
+}
+
+fn _play_debug(a: &Strategy, b: &Strategy, rounds: u32) -> (i32, i32) { // returns total points
+    let mut moves_a = vec![]; // previous moves a has made
+    let mut moves_b = vec![]; // previous moves b has made
+    let mut sum_score = (0, 0); // total score
+    for _round in 0..rounds { // play for n rounds
+        let move_a = a.decide(&moves_a, &moves_b);
+        let move_b = b.decide(&moves_b, &moves_a);
+        println!("{move_a}, {move_b}");
         let round_score = TABLE[if move_a {1} else {0} | if move_b {2} else {0}]; // will never exceed 3
         sum_score = (sum_score.0 + round_score.0, sum_score.1 + round_score.1);
         moves_a.push(move_a);
