@@ -6,10 +6,11 @@ use std::fmt;
 const TABLE: [(i32,i32); 4] = [(0,0), (-1,3), 
                                (3,-1), (2,2)];
 
-const ROUNDS: u32 = 100;
-const MISPLAY_CHANCE: f64 = 0.05;
+const ROUNDS: u32 = 1000;
+const COPIES: u32 = 1;
+const MISPLAY_CHANCE: f64 = 0.025;
 
-//#[derive(Debug)]
+#[derive(Clone)]
 enum Strategy {
     Random(f64), // probability to share
     Generous,
@@ -29,6 +30,8 @@ enum Strategy {
     Thoughtful,
     CultLeader,
     Cultist(u8),
+    Index(u8), // one of 32 with single-round memory
+    Chancecat(f64, f64), // chance to act like copycat, chance to share
 }
 
 impl Strategy {
@@ -110,6 +113,22 @@ impl Strategy {
             Cultist(_x) => { // if paired against leader, become generous, else become greedy
                 oppmoves[0..6] == [false, true, false, true, true, false]
             },
+            Index(n) => { // 1-move context strategy based on an index
+                if mymoves.is_empty() {return n & 0b10000 != 0}
+                match (mymoves.last().unwrap_or(&true), oppmoves.last().unwrap_or(&true)) {
+                    (false, false) => n & 0b00001 != 0,
+                    (false,  true) => n & 0b00010 != 0,
+                    ( true, false) => n & 0b00100 != 0,
+                    ( true,  true) => n & 0b01000 != 0,
+                }
+            },
+            Chancecat(pc, ps) => {
+                if rand::random_bool(*pc) {
+                    *oppmoves.last().unwrap_or(&true)
+                } else {
+                    rand::random_bool(*ps)
+                }
+            },
         }
     }
 }
@@ -136,6 +155,8 @@ impl std::fmt::Debug for Strategy {
             Thoughtful => write!(f, "Thoughtful"), 
             CultLeader => write!(f, "Cult Leader"), 
             Cultist(n) => write!(f, "Cultist {n}"), 
+            Index(n) => write!(f, "Index {n}"), 
+            Chancecat(pc, ps) => write!(f, "Chancecat ({pc}, {ps})"), 
         }
     }
 }
@@ -145,23 +166,39 @@ fn main() {
     // return false: steal
 
     use Strategy::*;
-    let strategies = 
-        [Random(0.25), Random(0.50), Random(0.75), Generous, Greedy, 
+    let mut strategytypes = 
+        vec![
+         Random(0.25), Random(0.50), Random(0.75), 
+         Generous, Greedy, 
          Periodic(2, 0b10), Periodic(2, 0b01), Periodic(4, 0b1100), Periodic(10, 0b1111100000), 
          Copycat, Copykitten, Anticat, 
          Grudger, ForgivingGrudger, Thankful, CautiousThankful, 
          Tester, Betrayer, Pavlov, Antipavlov, Thoughtful, 
-         CultLeader, Cultist(1), Cultist(2), Cultist(3), Cultist(4), Cultist(5), 
+         Chancecat(0.25, 0.5), Chancecat(0.5, 0.5),
+         CultLeader, 
          ];
+    for i in 0..8 {
+        strategytypes.push(Cultist(i as u8))
+    }
+    for i in 0..32 {
+        strategytypes.push(Index(i as u8))
+    }
+    let strategies = {
+        let mut temp = vec![];
+        for strat in strategytypes {
+            for _ in 0..COPIES {temp.push(strat.clone())}
+        }
+        temp
+    };
     let stratcount = strategies.len();
     let mut scores = vec![0; stratcount];
 
-    println!("Games");
+    println!("Playing Games...");
     for a in 0..strategies.len() {
         for b in a..strategies.len() {
             let score = play(&strategies[a], &strategies[b], ROUNDS);
             scores[a] += score.0; scores[b] += score.1;
-            println!("({:>3}, {:>3}) | {:?} vs {:?}", score.0, score.1, strategies[a], strategies[b]);
+            //println!("({:>4}, {:>4}) | {:?} vs {:?}", score.0, score.1, strategies[a], strategies[b]);
         }
     }
 
@@ -172,10 +209,31 @@ fn main() {
     scoreboard.sort_by_key(|k| k.1);
     scoreboard.reverse();
     println!();
-    println!("Scores");
-    for i in scoreboard {
-        println!("{:>5} | {:?}", i.1, i.0);
+    println!("Scores for {} rounds at {}% misplay chance", ROUNDS, MISPLAY_CHANCE*100.0);
+    for i in scoreboard.iter().enumerate() {
+        println!("{:>3}: {:>6} | {:?}", i.0, i.1.1, i.1.0);
     }
+
+    // let mut scores = [0; 32];
+    // println!("Playing Games");
+    // for a in 0..32 {
+    //     for b in a..32 {
+    //         let score = play(&Index(a as u8), &Index(b as u8), ROUNDS);
+    //         scores[a] += score.0; scores[b] += score.1;
+    //         //println!("({:>3}, {:>3}) | {:?} vs {:?}", score.0, score.1, strategies[a], strategies[b]);
+    //     }
+    // }
+    // let mut scoreboard: Vec<(i32, i32)> = vec![];
+    // for i in 0..32 {
+    //     scoreboard.push((i, scores[i as usize]))
+    // }
+    // scoreboard.sort_by_key(|k| k.1);
+    // scoreboard.reverse();
+    // println!();
+    // println!("Scores");
+    // for i in scoreboard {
+    //     println!("{:>5} | Index {:?}", i.1, i.0);
+    // }
 }
 
 fn play(a: &Strategy, b: &Strategy, rounds: u32) -> (i32, i32) { // returns total points
