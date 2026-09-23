@@ -17,7 +17,7 @@ enum Strategy {
     Periodic(u32, u32), // period, seq
     Copycat,
     Copykitten,
-    AntiCopycat,
+    Anticat,
     Grudger,
     ForgivingGrudger,
     Thankful,
@@ -25,6 +25,7 @@ enum Strategy {
     Tester,
     Betrayer,
     Pavlov,
+    Antipavlov,
     Thoughtful,
     CultLeader,
     Cultist(u8),
@@ -45,7 +46,7 @@ impl Strategy {
                 if oppmoves.len() < 2 {true} // share for first two turns
                 else {!(!oppmoves[oppmoves.len()-2] && !oppmoves[oppmoves.len()-1])}
             }, 
-            AntiCopycat => !oppmoves.last().unwrap_or(&true), // steal, then not opponents last move
+            Anticat => !oppmoves.last().unwrap_or(&true), // steal, then not opponents last move
             Grudger => !oppmoves.contains(&false), // generous, unless opponent steals, then greedy
             ForgivingGrudger => oppmoves.iter().filter(|b| !*b).count() < 2, // grudges if opponent steals twice
             Thankful => oppmoves.contains(&true), // greedy, unless opponent shares, then generous, aka antigrudger
@@ -59,6 +60,7 @@ impl Strategy {
                 } else {false}
             }
             Pavlov => mymoves.last().unwrap_or(&true) == oppmoves.last().unwrap_or(&true),
+            Antipavlov => mymoves.last().unwrap_or(&false) != oppmoves.last().unwrap_or(&false),
             Thoughtful if oppmoves.len() <= 5 => [true, true, false, true, false, true][oppmoves.len()],
             Thoughtful => { // probabilistic model, makes decisions depending on payout chance
                 const PAYRATE: f64 = 0.5;
@@ -119,10 +121,10 @@ impl std::fmt::Debug for Strategy {
             Random(p) => write!(f, "Random ({p})"), 
             Generous => write!(f, "Generous"), 
             Greedy => write!(f, "Greedy"), 
-            Periodic(_p, b) => write!(f, "Periodic ({b:b})"), 
+            Periodic(p, b) => {let p = *p as usize; write!(f, "Periodic ({b:0p$b})")}, 
             Copycat => write!(f, "Copycat"), 
             Copykitten => write!(f, "Copykitten"), 
-            AntiCopycat => write!(f, "AntiCopycat"), 
+            Anticat => write!(f, "Anticat"), 
             Grudger => write!(f, "Grudger"), 
             ForgivingGrudger => write!(f, "Forgiving Grudger"), 
             Thankful => write!(f, "Thankful"), 
@@ -130,6 +132,7 @@ impl std::fmt::Debug for Strategy {
             Tester => write!(f, "Tester"), 
             Betrayer => write!(f, "Betrayer"), 
             Pavlov => write!(f, "Pavlov"), 
+            Antipavlov => write!(f, "Antipavlov"), 
             Thoughtful => write!(f, "Thoughtful"), 
             CultLeader => write!(f, "Cult Leader"), 
             Cultist(n) => write!(f, "Cultist {n}"), 
@@ -145,9 +148,9 @@ fn main() {
     let strategies = 
         [Random(0.25), Random(0.50), Random(0.75), Generous, Greedy, 
          Periodic(2, 0b10), Periodic(2, 0b01), Periodic(4, 0b1100), Periodic(10, 0b1111100000), 
-         Copycat, Copykitten, AntiCopycat, 
+         Copycat, Copykitten, Anticat, 
          Grudger, ForgivingGrudger, Thankful, CautiousThankful, 
-         Tester, Betrayer, Pavlov, Thoughtful, 
+         Tester, Betrayer, Pavlov, Antipavlov, Thoughtful, 
          CultLeader, Cultist(1), Cultist(2), Cultist(3), Cultist(4), Cultist(5), 
          ];
     let stratcount = strategies.len();
@@ -161,6 +164,7 @@ fn main() {
             println!("({:>3}, {:>3}) | {:?} vs {:?}", score.0, score.1, strategies[a], strategies[b]);
         }
     }
+
     let mut scoreboard: Vec<(&Strategy, i32)> = vec![];
     for i in 0..stratcount {
         scoreboard.push((&strategies[i], scores[i]))
@@ -196,7 +200,7 @@ fn _play_debug(a: &Strategy, b: &Strategy, rounds: u32) -> (i32, i32) { // retur
     for _round in 0..rounds { // play for n rounds
         let move_a = a.decide(&moves_a, &moves_b);
         let move_b = b.decide(&moves_b, &moves_a);
-        println!("{move_a}, {move_b}");
+        println!("{move_a:>5}, {move_b:>5}");
         let round_score = TABLE[if move_a {1} else {0} | if move_b {2} else {0}]; // will never exceed 3
         sum_score = (sum_score.0 + round_score.0, sum_score.1 + round_score.1);
         moves_a.push(move_a);
