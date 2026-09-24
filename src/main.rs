@@ -8,7 +8,7 @@ const TABLE: [(i32,i32); 4] = [(0,0), (-1,3),
 
 const ROUNDS: u32 = 1000;
 const COPIES: u32 = 1;
-const MISPLAY_CHANCE: f64 = 0.025;
+const MISPLAY_CHANCE: f64 = 0.05;
 
 #[derive(Clone)]
 enum Strategy {
@@ -30,12 +30,17 @@ enum Strategy {
     Thoughtful,
     CultLeader,
     Cultist(u8),
+    Peasant(u8),
+    King,
     Index(u8), // one of 32 with single-round memory
     Chancecat(f64, f64), // chance to act like copycat, chance to share
 }
 
 impl Strategy {
     fn decide(&self, mymoves: &[bool], oppmoves: &[bool]) -> bool {
+        const CULT_LEADER_KEY: [bool; 8] = [true, false, false, true, true, false, true, false];
+        const CULTIST_KEY: [bool; 8] = [false, true, true, false, false, true, false, true];
+        const PEASANT_KEY: [bool; 8] = [false, true, false, true, true, true, false, false];
         use Strategy::*;
         match self {
             Random(p) => rand::random_bool(*p), // choose randomly
@@ -64,7 +69,7 @@ impl Strategy {
             }
             Pavlov => mymoves.last().unwrap_or(&true) == oppmoves.last().unwrap_or(&true),
             Antipavlov => mymoves.last().unwrap_or(&false) != oppmoves.last().unwrap_or(&false),
-            Thoughtful if oppmoves.len() <= 5 => [true, true, false, true, false, true][oppmoves.len()],
+            Thoughtful if oppmoves.len() < 8 => [true, true, false, true, true, false, true, true][oppmoves.len()],
             Thoughtful => { // probabilistic model, makes decisions depending on payout chance
                 const PAYRATE: f64 = 0.5;
                 const Z: f64 = 1.5;
@@ -101,18 +106,42 @@ impl Strategy {
                     false
                 }
             }
-            CultLeader if oppmoves.len() <= 5 => [false, true, false, true, true, false][oppmoves.len()],
-            CultLeader => { // if paired against follower, become greedy, else become copycat
-                if oppmoves[0..6] == [true, false, true, false, false, true] { 
+            CultLeader if oppmoves.len() < CULT_LEADER_KEY.len() => CULT_LEADER_KEY[oppmoves.len()],
+            CultLeader => { // if paired against Cultist, become greedy, else become copycat
+                if {
+                    let mut sum_ones = 0;
+                    for i in 0..CULTIST_KEY.len() {
+                        if oppmoves[i] ^ CULTIST_KEY[i] {sum_ones += 1}
+                    }
+                    sum_ones
+                } < 2 { // if key matches all but one flipped bit, still allow it
                     false
                 } else {
                     *oppmoves.last().unwrap_or(&true)
                 }
             },
-            Cultist(x) if oppmoves.len() <= 5 => [true, false, true, false, false, true][oppmoves.len()],
-            Cultist(_x) => { // if paired against leader, become generous, else become greedy
-                oppmoves[0..6] == [false, true, false, true, true, false]
+            Cultist(x) if oppmoves.len() < CULTIST_KEY.len() => CULTIST_KEY[oppmoves.len()],
+            Cultist(_x) => { // if paired against CultLeader, become generous, else become greedy
+                if {
+                    let mut sum_ones = 0;
+                    for i in 0..CULT_LEADER_KEY.len() {
+                        if oppmoves[i] ^ CULT_LEADER_KEY[i] {sum_ones += 1}
+                    }
+                    sum_ones
+                } < 2 {true} else {false} // if key matches all but one flipped bit, still allow it
             },
+            Peasant(_x) if mymoves.len() < PEASANT_KEY.len() => PEASANT_KEY[mymoves.len()],
+            Peasant(_x) => { // if paired against Peasant, become generous, else become greedy
+                if {
+                    let mut sum_ones = 0;
+                    for i in 0..PEASANT_KEY.len() {
+                        if oppmoves[i] ^ PEASANT_KEY[i] {sum_ones += 1}
+                    }
+                    sum_ones
+                } < 2 {true} else {false} // if key matches all but one flipped bit, still allow it
+            },
+            King if mymoves.len() < PEASANT_KEY.len() => PEASANT_KEY[mymoves.len()],
+            King => false,
             Index(n) => { // 1-move context strategy based on an index
                 if mymoves.is_empty() {return n & 0b10000 != 0}
                 match (mymoves.last().unwrap_or(&true), oppmoves.last().unwrap_or(&true)) {
@@ -153,8 +182,10 @@ impl std::fmt::Debug for Strategy {
             Pavlov => write!(f, "Pavlov"), 
             Antipavlov => write!(f, "Antipavlov"), 
             Thoughtful => write!(f, "Thoughtful"), 
-            CultLeader => write!(f, "Cult Leader"), 
+            CultLeader => write!(f, "CultLeader"), 
             Cultist(n) => write!(f, "Cultist {n}"), 
+            Peasant(n) => write!(f, "Peasant {n}"), 
+            King => write!(f, "King"), 
             Index(n) => write!(f, "Index {n}"), 
             Chancecat(pc, ps) => write!(f, "Chancecat ({pc}, {ps})"), 
         }
@@ -170,18 +201,26 @@ fn main() {
         vec![
          Random(0.25), Random(0.50), Random(0.75), 
          Generous, Greedy, 
-         Periodic(2, 0b10), Periodic(2, 0b01), Periodic(4, 0b1100), Periodic(10, 0b1111100000), 
+         //Periodic(2, 0b10), Periodic(2, 0b01), Periodic(4, 0b1100), Periodic(10, 0b1111100000), 
          Copycat, Copykitten, Anticat, 
          Grudger, ForgivingGrudger, Thankful, CautiousThankful, 
          Tester, Betrayer, Pavlov, Antipavlov, Thoughtful, 
          Chancecat(0.25, 0.5), Chancecat(0.5, 0.5),
-         CultLeader, 
+         CultLeader, King,
          ];
     for i in 0..8 {
         strategytypes.push(Cultist(i as u8))
     }
-    for i in 0..32 {
+    for i in 0..4 {
+        strategytypes.push(Peasant(i as u8))
+    }
+    for i in 1..31 { // avoid adding greedy/generous again
         strategytypes.push(Index(i as u8))
+    }
+    for l in 2..=4 {
+        for s in 1..((1<<l)-1) { // avoid adding greedy/generous again
+            strategytypes.push(Periodic(l, s))
+        }
     }
     let strategies = {
         let mut temp = vec![];
@@ -211,7 +250,7 @@ fn main() {
     println!();
     println!("Scores for {} rounds at {}% misplay chance", ROUNDS, MISPLAY_CHANCE*100.0);
     for i in scoreboard.iter().enumerate() {
-        println!("{:>3}: {:>6} | {:?}", i.0, i.1.1, i.1.0);
+        println!("{:>3}: {:>6} | {:?}", i.0+1, i.1.1, i.1.0);
     }
 
     // let mut scores = [0; 32];
