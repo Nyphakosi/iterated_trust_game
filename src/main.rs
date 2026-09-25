@@ -18,7 +18,7 @@ trait Strategy: std::fmt::Display + DynClone {
 }
 
 #[macro_export]
-macro_rules! retrieve_strategies {
+macro_rules! retrieve_strategies { // get strategies from subfolders/files
     ($($name:ident),*) => {
         $(mod $name;)*
 
@@ -46,12 +46,13 @@ fn main() {
 
     // let print_target = "Probamimic";
     println!("Playing Games...");
-    for a in 0..strategies.len() {
+    for a in 0..strategies.len() { // play each strategy against each other, once
         for b in a..strategies.len() {
             let mut strat_a = dyn_clone::clone_box(&*strategies[a]);
             let mut strat_b = dyn_clone::clone_box(&*strategies[b]);
             let score = play(&mut *strat_a, &mut *strat_b, ROUNDS);
-            scores[a] += score.0; scores[b] += score.1;
+            scores[a] += score.0; scores[b] += score.1; // keep track of round scores
+            // this is for seeing how a specific strategy does against all others
             // if format!("{}", strategies[a]) == print_target || format!("{}", strategies[b]) == print_target {
             //     println!("({:>5}, {:>5}) | {:?} vs {:?}", score.0, score.1, format!("{}", strategies[a]), format!("{}", strategies[b]));
             // }
@@ -60,7 +61,7 @@ fn main() {
 
     let mut scoreboard: Vec<(String, i32)> = vec![];
     for i in 0..stratcount {
-        scoreboard.push((format!("{}", strategies[i]), scores[i]))
+        scoreboard.push((format!("{}", strategies[i]), scores[i])) // associate strategy names with their scores
     }
     scoreboard.sort_by_key(|k| k.1);
     scoreboard.reverse();
@@ -71,7 +72,7 @@ fn main() {
     println!("With table steal/steal:{}/{}, steal/share:{}/{}, share/share:{}/{}",
         TABLE[0].0, TABLE[0].1, TABLE[2].0, TABLE[2].1, TABLE[3].0, TABLE[3].1,
     );
-    for i in scoreboard.iter().enumerate() {
+    for i in scoreboard.iter().enumerate() { // print the scoreboard
         println!("{:>3}: {:>6} | {:?}", i.0+1, i.1.1, i.1.0.to_string());
     }
 }
@@ -91,6 +92,7 @@ fn play(a: &mut dyn Strategy, b: &mut dyn Strategy, rounds: u32) -> (i32, i32) {
     sum_score
 }
 
+// prints every move
 fn _play_debug(a: &mut dyn Strategy, b: &mut dyn Strategy, rounds: u32) -> (i32, i32) { // returns total points
     println!("{} vs {}", a, b);
     let mut moves_a = vec![]; // previous moves a has made
