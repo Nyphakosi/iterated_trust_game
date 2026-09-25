@@ -1,3 +1,3 @@
 use crate::*;
 
-retrieve_strategies!(kingmaker, index, periodic, betrayer);
+retrieve_strategies!(kingmaker, index, periodic, betrayer, detective);

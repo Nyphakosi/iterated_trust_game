@@ -5,7 +5,7 @@ use crate::Strategy;
 pub struct ForgivingGrudger(u32); // >=2 = grudging
 impl fmt::Display for ForgivingGrudger {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "ForgivingGrudger")
+        write!(f, "Forgiving Grudger")
     }
 }
 impl Strategy for ForgivingGrudger { // generous, unless opponent steals, then greedy
@@ -19,7 +19,7 @@ impl Strategy for ForgivingGrudger { // generous, unless opponent steals, then g
 pub struct CautiousThankful(u32); // >=2 = thanking
 impl fmt::Display for CautiousThankful {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "CautiousThankful")
+        write!(f, "Cautious Thankful")
     }
 }
 impl Strategy for CautiousThankful { // greedy, unless opponent steals twice, then generous
