@@ -22,7 +22,7 @@ impl fmt::Display for Businessman {
 impl Businessman {
     pub fn new(
         z: f64, b: f64, decay: f64,
-        opening: impl 'static + Sized + Into<Box<[bool]>>,
+        opening: impl 'static + Into<Box<[bool]>>,
     ) -> Self {
         assert!((0.0..=1.0).contains(&decay));
         let opening = opening.into();

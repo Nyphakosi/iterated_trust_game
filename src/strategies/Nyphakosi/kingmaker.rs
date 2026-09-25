@@ -36,7 +36,7 @@ impl fmt::Display for King {
 impl Strategy for King { // return peasant's key, then steal from them
     fn decide(&mut self, _memory: &[bool], history: &[bool]) -> bool {
         if history.len() < PEASANT_KEY.len() {return PEASANT_KEY[history.len()]}
-        *history.last().unwrap_or(&true)
+        false //*history.last().unwrap_or(&true)
     }
 }
 

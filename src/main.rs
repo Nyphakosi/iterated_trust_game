@@ -56,7 +56,12 @@ fn main() {
     scoreboard.sort_by_key(|k| k.1);
     scoreboard.reverse();
     println!();
-    println!("Scores for {} rounds at {}% misplay chance", ROUNDS, MISPLAY_CHANCE*100.0);
+    println!("Scores for {} rounds at {}% misplay chance, with table ", 
+        ROUNDS, MISPLAY_CHANCE*100.0, 
+    );
+    println!("With table steal/steal:{}/{}, steal/share:{}/{}, share/share:{}/{}",
+        TABLE[0].0, TABLE[0].1, TABLE[2].0, TABLE[2].1, TABLE[3].0, TABLE[3].1,
+    );
     for i in scoreboard.iter().enumerate() {
         println!("{:>3}: {:>6} | {:?}", i.0+1, i.1.1, i.1.0.to_string());
     }
