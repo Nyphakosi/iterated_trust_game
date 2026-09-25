@@ -24,7 +24,7 @@ pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
     //     &Periodic(4, 0b1000), &Periodic(4, 0b1001), &Periodic(4, 0b1010), &Periodic(4, 0b1011), &Periodic(4, 0b1100), &Periodic(4, 0b1101), &Periodic(4, 0b1110), 
     // ]
     let mut v: Vec<Box<dyn Strategy>> = vec![];
-    for period in 2..=5 {
+    for period in 2..=4 {
         for sequence in 1..((1<<period)-1) {
             v.push(Box::new(Periodic(period, sequence as u32)))
         }
