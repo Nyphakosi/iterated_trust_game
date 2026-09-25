@@ -1,15 +1,16 @@
+#![allow(non_snake_case)]
 use crate::Strategy;
 
-pub mod simplistic;
-#[allow(non_snake_case)]
-pub mod Nyphakosi;
-#[allow(non_snake_case)]
-pub mod Raindrops;
+mod simplistic;
+mod Nyphakosi;
+mod Raindrops;
+mod relyks;
 
-pub(super) fn retrieve_strategies() -> Vec<&'static dyn Strategy> {
+pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
     let mut strats = simplistic::retrieve_strategies();
-    strats.extend(&Nyphakosi::retrieve_strategies());
-    strats.extend(&Raindrops::retrieve_strategies());
+    strats.extend(Nyphakosi::retrieve_strategies());
+    strats.extend(Raindrops::retrieve_strategies());
+    strats.extend(relyks::retrieve_strategies());
     strats
 }
 

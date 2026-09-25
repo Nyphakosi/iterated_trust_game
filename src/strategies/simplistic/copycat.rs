@@ -27,6 +27,6 @@ impl Strategy for Anticat { // steal, then not opponent's last move
     }
 }
 
-pub(super) fn retrieve_strategies() -> Vec<&'static dyn Strategy> {
-    vec![&Copycat, &Anticat]
+pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
+    vec![Box::new(Copycat), Box::new(Anticat)]
 }

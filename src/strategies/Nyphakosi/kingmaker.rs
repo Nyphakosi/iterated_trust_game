@@ -1,8 +1,8 @@
 use std::fmt;
 use crate::Strategy;
 
-const _CULT_LEADER_KEY: [bool; 8] = [true, false, false, true, true, false, true, false];
-const _CULTIST_KEY: [bool; 8] = [false, true, true, false, false, true, false, true];
+// const CULT_LEADER_KEY: [bool; 8] = [true, false, false, true, true, false, true, false];
+// const CULTIST_KEY: [bool; 8] = [false, true, true, false, false, true, false, true];
 const PEASANT_KEY: [bool; 8] = [false, true, false, true, true, true, false, false];
 
 
@@ -34,16 +34,16 @@ impl fmt::Display for King {
     }
 }
 impl Strategy for King { // return peasant's key, then steal from them
-    fn decide(&mut self, memory: &[bool], _history: &[bool]) -> bool {
-        if memory.len() < PEASANT_KEY.len() {return PEASANT_KEY[memory.len()]}
-        false
+    fn decide(&mut self, _memory: &[bool], history: &[bool]) -> bool {
+        if history.len() < PEASANT_KEY.len() {return PEASANT_KEY[history.len()]}
+        *history.last().unwrap_or(&true)
     }
 }
 
-fn todo() {} // make this better
-pub(super) fn retrieve_strategies() -> Vec<&'static dyn Strategy> {
-    vec![
-        &King, 
-        &Peasant(0), &Peasant(1), &Peasant(2), &Peasant(3), 
-    ]
+pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
+    let mut v: Vec<Box<dyn Strategy>> = vec![
+        Box::new(King), 
+    ];
+    for i in 0..4 {v.push(Box::new(Peasant(i)))}
+    v
 }

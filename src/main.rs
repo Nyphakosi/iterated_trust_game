@@ -4,7 +4,7 @@ mod strategies;
 //                (a,b)     a: steal  share      b:
 // const TABLE: [(i32,i32); 4] = [(2,2), (2,8),  // steal
 //                                (8,2), (5,5)]; // share
-const TABLE: [(i32,i32); 4] = [(0,0), (-1,3), 
+const TABLE: [(i32,i32); 4] = [(-1,-1), (-1,3), 
                                (3,-1), (2,2)];
 
 pub const ROUNDS: u32 = 1000;
@@ -17,19 +17,32 @@ trait Strategy: std::fmt::Display + DynClone {
     fn decide(&mut self, memory: &[bool], history: &[bool]) -> bool;
 }
 
+#[macro_export]
+macro_rules! retrieve_strategies {
+    ($($name:ident),*) => {
+        $(mod $name;)*
+
+        pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
+            let mut v = vec![];
+            $(v.append(&mut $name::retrieve_strategies());)*
+            v
+        }
+    };
+}
+
 fn main() {
     // return true: share
     // return false: steal
 
-    let strategies: Vec<&dyn Strategy> = strategies::retrieve_strategies();
+    let strategies: Vec<Box<dyn Strategy>> = strategies::retrieve_strategies();
     let stratcount = strategies.len();
     let mut scores = vec![0; stratcount];
 
     println!("Playing Games...");
     for a in 0..strategies.len() {
         for b in a..strategies.len() {
-            let mut strat_a = dyn_clone::clone_box(strategies[a]);
-            let mut strat_b = dyn_clone::clone_box(strategies[b]);
+            let mut strat_a = dyn_clone::clone_box(&*strategies[a]);
+            let mut strat_b = dyn_clone::clone_box(&*strategies[b]);
             let score = play(&mut *strat_a, &mut *strat_b, ROUNDS);
             scores[a] += score.0; scores[b] += score.1;
             //println!("({:>5}, {:>5}) | {:?} vs {:?}", score.0, score.1, format!("{}", strategies[a]), format!("{}", strategies[b]));

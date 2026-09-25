@@ -20,12 +20,16 @@ impl Strategy for Index { // always steals
     }
 }
 
-fn todo() {} // make this better
-pub(super) fn retrieve_strategies() -> Vec<&'static dyn Strategy> {
-    vec![
-                      &Index(1),  &Index(2),  &Index(3),  &Index(4),  &Index(5),  &Index(6),  &Index(7), 
-         &Index(8),   &Index(9), &Index(10), &Index(11), &Index(12), &Index(13), &Index(14), &Index(15), 
-        &Index(16),  &Index(17), &Index(18), &Index(19), &Index(20), &Index(21), &Index(22), &Index(23), 
-        &Index(24),  &Index(25), &Index(26), &Index(27), &Index(28), &Index(29), &Index(30), 
-    ]
+pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
+    // vec![
+    //                   &Index(1),  &Index(2),  &Index(3),  &Index(4),  &Index(5),  &Index(6),  &Index(7), 
+    //      &Index(8),   &Index(9), &Index(10), &Index(11), &Index(12), &Index(13), &Index(14), &Index(15), 
+    //     &Index(16),  &Index(17), &Index(18), &Index(19), &Index(20), &Index(21), &Index(22), &Index(23), 
+    //     &Index(24),  &Index(25), &Index(26), &Index(27), &Index(28), &Index(29), &Index(30), 
+    // ]
+    let mut v: Vec<Box<dyn Strategy>> = vec![];
+    for i in 1..31 {
+        v.push(Box::new(Index(i)))
+    }
+    v
 }

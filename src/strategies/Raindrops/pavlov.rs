@@ -27,6 +27,6 @@ impl Strategy for Antipavlov { // steal, then not opponent's last move
     }
 }
 
-pub(super) fn retrieve_strategies() -> Vec<&'static dyn Strategy> {
-    vec![&Pavlov, &Antipavlov]
+pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
+    vec![Box::new(Pavlov), Box::new(Antipavlov)]
 }

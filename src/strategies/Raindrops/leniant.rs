@@ -43,6 +43,6 @@ impl Strategy for Copykitten {// steals only if opponent steals twice in a row
     }
 }
 
-pub(super) fn retrieve_strategies() -> Vec<&'static dyn Strategy> {
-    vec![&ForgivingGrudger(0), &CautiousThankful(0), &Copykitten]
+pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
+    vec![Box::new(ForgivingGrudger(0)), Box::new(CautiousThankful(0)), Box::new(Copykitten)]
 }

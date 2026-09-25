@@ -19,6 +19,6 @@ impl Strategy for Chancecat {
     }
 }
 
-pub(super) fn retrieve_strategies() -> Vec<&'static dyn Strategy> {
-    vec![&Chancecat(0.25, 0.50), &Chancecat(0.50, 0.50), &Chancecat(0.75, 0.50)]
+pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
+    vec![Box::new(Chancecat(0.25, 0.50)), Box::new(Chancecat(0.50, 0.50)), Box::new(Chancecat(0.75, 0.50))]
 }

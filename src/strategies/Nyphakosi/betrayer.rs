@@ -15,6 +15,6 @@ impl Strategy for Betrayer { // generous for first proportion of the game, then 
     }
 }
 
-pub(super) fn retrieve_strategies() -> Vec<&'static dyn Strategy> {
-    vec![&Betrayer(0.25), &Betrayer(0.50), &Betrayer(0.75)]
+pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
+    vec![Box::new(Betrayer(0.25)), Box::new(Betrayer(0.50)), Box::new(Betrayer(0.75))]
 }

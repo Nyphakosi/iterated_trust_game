@@ -15,6 +15,6 @@ impl Strategy for Random { // pick randomly
     }
 }
 
-pub(super) fn retrieve_strategies() -> Vec<&'static dyn Strategy> {
-    vec![&Random(0.25), &Random(0.50), &Random(0.75)]
+pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
+    vec![Box::new(Random(0.25)), Box::new(Random(0.50)), Box::new(Random(0.75))]
 }

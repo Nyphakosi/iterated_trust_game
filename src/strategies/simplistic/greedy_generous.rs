@@ -27,6 +27,6 @@ impl Strategy for Generous { // always shares
     }
 }
 
-pub(super) fn retrieve_strategies() -> Vec<&'static dyn Strategy> {
-    vec![&Greedy, &Generous]
+pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
+    vec![Box::new(Greedy), Box::new(Generous)]
 }

@@ -29,6 +29,6 @@ impl Strategy for Thankful { // greedy, unless opponent steals, then generous
     }
 }
 
-pub(super) fn retrieve_strategies() -> Vec<&'static dyn Strategy> {
-    vec![&Grudger(true), &Thankful(false)]
+pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
+    vec![Box::new(Grudger(true)), Box::new(Thankful(false))]
 }
