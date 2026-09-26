@@ -61,7 +61,7 @@ const G: GameSettings = GameSettings {
         payout: [TABLE[0].1 as f64, TABLE[1].1 as f64, TABLE[2].1 as f64, TABLE[3].1 as f64],
         miss_rate: MISPLAY_CHANCE,
 };
-impl Strategy for Businessman { // not yet implemented, acts like generous
+impl Strategy for Businessman { // statistical model; if opponent plays like copycat, become generous, else become greedy 
     fn decide(&mut self, memory: &[bool], history: &[bool]) -> bool {
         let update = {
             if history.is_empty() {Option::None}
