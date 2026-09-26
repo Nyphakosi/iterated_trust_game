@@ -1,4 +1,4 @@
-use std::{fmt, thread, time};
+use std::fmt;
 use crate::Strategy;
 
 #[derive(Clone)]
@@ -13,20 +13,6 @@ impl Strategy for Periodic { // repeat a sequence of moves
     fn decide(&mut self, memory: &[bool], _history: &[bool]) -> bool {
         let p = self.0; let b = self.1;
         b & (1<<(p - (memory.len() % p)-1)) != 0 // pick bit from binary num by logical AND with leftshifted 1
-    }
-}
-
-#[derive(Clone)]
-pub struct DelayTest;
-impl fmt::Display for DelayTest {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "DelayTest")
-    }
-}
-impl Strategy for DelayTest { // generous, but delayed to test multithreading
-    fn decide(&mut self, _memory: &[bool], _history: &[bool]) -> bool {
-        thread::sleep(time::Duration::from_millis(1));
-        true
     }
 }
 

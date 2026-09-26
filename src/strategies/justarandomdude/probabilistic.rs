@@ -23,6 +23,19 @@ impl Strategy for Probamimic { // picks a random choice based on what opponent i
     }
 }
 
+#[derive(Clone)]
+pub struct Predictor;
+impl fmt::Display for Predictor {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Predictor")
+    }
+}
+impl Strategy for Predictor { // wip strat
+    fn decide(&mut self, _memory: &[bool], history: &[bool]) -> bool {
+        unimplemented!()
+    }
+}
+
 pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
     vec![Box::new(Probamimic(0,0))]
 }

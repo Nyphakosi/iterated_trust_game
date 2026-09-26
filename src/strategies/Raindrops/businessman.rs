@@ -16,10 +16,14 @@ pub struct Businessman{
 }
 impl fmt::Display for Businessman {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Businessman({},{},{}){{{:?}}}", self.z, self.b, self.decay, self.opening)
+        write!(f, "{}", Businessman::label(self))
     }
 }
 impl Businessman {
+    fn label(&self) -> String {
+        let opening = self.opening.iter().map(|&p| if p {'1'} else {'0'}).collect::<String>();
+        format!("Businessman({},{},{}){{{}}}", self.z, self.b, self.decay, opening)
+    }
     pub fn new(
         z: f64, b: f64, decay: f64,
         opening: impl 'static + Into<Box<[bool]>>,

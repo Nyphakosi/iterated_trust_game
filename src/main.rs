@@ -22,6 +22,9 @@ const MISPLAY_CHANCE: f64 = 0.05;
 
 //type Strategy = fn(&[bool], &[bool]) -> bool;
 
+// return false: steal, return true: share
+// memory is the previous moves the strategy has made, history is the moves the opponent has made
+// strategies are allowed access to parameters of the match (like number of rounds) and access to mutable self state
 trait Strategy: std::fmt::Display + DynClone + Send + Sync {
     fn decide(&mut self, memory: &[bool], history: &[bool]) -> bool;
 }
@@ -40,15 +43,13 @@ macro_rules! retrieve_strategies { // get strategies from subfolders/files
 }
 
 fn main() {
-    // return true: share
-    // return false: steal
-
     let _core_count = num_cpus::get();
 
-    let strategies: Vec<Box<dyn Strategy>> = strategies::retrieve_strategies();
+    let strategies: Vec<Box<dyn Strategy>> = strategies::retrieve_strategies(); // collect strategies from subfolders and files
     let stratcount = strategies.len();
     let mut scores = vec![0; stratcount];
 
+    // this is debug code for displaying a specific match
     // let mut strat_a = dyn_clone::clone_box(&**strategies.iter().find(|x| format!("{}", x).contains(
     //     "Probamimic")).unwrap());
     // let mut strat_b = dyn_clone::clone_box(&**strategies.iter().find(|x| format!("{}", x).contains(
@@ -59,6 +60,8 @@ fn main() {
 
     // let print_target = "Probamimic";
     println!("Playing Games...");
+
+    // code from before multithreading attempt
     // for a in 0..strategies.len() { // play each strategy against each other, once
     //     for b in a..strategies.len() {
     //         let mut strat_a = dyn_clone::clone_box(&*strategies[a]);
