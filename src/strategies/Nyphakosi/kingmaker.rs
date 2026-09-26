@@ -33,10 +33,11 @@ impl fmt::Display for King {
         write!(f, "King")
     }
 }
-impl Strategy for King { // return peasant's key, then steal from them
+impl Strategy for King { // steal from them peasants, else act like copycat
     fn decide(&mut self, _memory: &[bool], history: &[bool]) -> bool {
         if history.len() < PEASANT_KEY.len() {return PEASANT_KEY[history.len()]}
-        false //*history.last().unwrap_or(&true)
+        if history[0..PEASANT_KEY.len()] == PEASANT_KEY {return false}
+        *history.last().unwrap_or(&true)
     }
 }
 
@@ -44,6 +45,6 @@ pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
     let mut v: Vec<Box<dyn Strategy>> = vec![
         Box::new(King), 
     ];
-    for i in 0..4 {v.push(Box::new(Peasant(i)))}
+    for i in 0..(1<<2) {v.push(Box::new(Peasant(i)))}
     v
 }

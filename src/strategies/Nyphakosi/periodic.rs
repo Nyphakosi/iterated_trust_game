@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, thread, time};
 use crate::Strategy;
 
 #[derive(Clone)]
@@ -16,6 +16,20 @@ impl Strategy for Periodic { // repeat a sequence of moves
     }
 }
 
+#[derive(Clone)]
+pub struct DelayTest;
+impl fmt::Display for DelayTest {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "DelayTest")
+    }
+}
+impl Strategy for DelayTest { // generous, but delayed to test multithreading
+    fn decide(&mut self, _memory: &[bool], _history: &[bool]) -> bool {
+        thread::sleep(time::Duration::from_millis(1));
+        true
+    }
+}
+
 pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
     // vec![
     //     &Periodic(2, 0b01), &Periodic(2, 0b10), 
@@ -29,5 +43,6 @@ pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
             v.push(Box::new(Periodic(period, sequence as u32)))
         }
     }
+    //v.push(Box::new(DelayTest));
     v
 }

@@ -5,4 +5,5 @@ edition = "2024"
 
 [dependencies]
 dyn-clone = "1.0.20"
+num_cpus = "1.17.0"
 rand = "0.10.3"

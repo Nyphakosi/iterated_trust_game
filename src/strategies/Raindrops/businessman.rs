@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use std::fmt;
-use crate::{MISPLAY_CHANCE, ROUNDS, Strategy, TABLE};
+use crate::*;
 
 #[derive(Clone)]
 pub struct Businessman{
