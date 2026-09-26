@@ -10,7 +10,7 @@ impl fmt::Display for DelayTest {
 }
 impl Strategy for DelayTest { // generous, but delayed to test multithreading
     fn decide(&mut self, _memory: &[bool], _history: &[bool]) -> bool {
-        thread::sleep(time::Duration::from_millis(1));
+        thread::sleep(time::Duration::from_millis(DELAYTEST_MS));
         true
     }
 }

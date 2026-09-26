@@ -33,7 +33,7 @@ impl fmt::Display for King {
         write!(f, "King")
     }
 }
-impl Strategy for King { // steal from them peasants, else act like copycat
+impl Strategy for King { // steal from the peasants, else act like copycat
     fn decide(&mut self, _memory: &[bool], history: &[bool]) -> bool {
         if history.len() < PEASANT_KEY.len() {return PEASANT_KEY[history.len()]}
         if history[0..PEASANT_KEY.len()] == PEASANT_KEY {return false}

@@ -5,7 +5,7 @@ use crate::Strategy;
 pub struct Delaycat(usize); // how many turns back to copy
 impl fmt::Display for Delaycat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Delaycat")
+        write!(f, "Delaycat ({})", self.0)
     }
 }
 impl Strategy for Delaycat { // share, then opponent's move n turns ago
@@ -17,7 +17,7 @@ impl Strategy for Delaycat { // share, then opponent's move n turns ago
 
 pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
     let mut v: Vec<Box<dyn Strategy>> = vec![];
-    for i in 1..4 {
+    for i in 1..6 {
         v.push(Box::new(Delaycat(1<<i)))
     }
     v

@@ -6,7 +6,8 @@ use dyn_clone::{self, DynClone};
 mod strategies;
 
 // these are for stress testing the simulator
-const DELAYTEST: bool = false; // inserts the DelayTest strategy, which is generous but with a 1ms delay to answering
+const DELAYTEST: bool = false; // inserts the DelayTest strategy, which is generous but with a timed delay to answering
+const DELAYTEST_MS: u64 = 5; // ms per answer
 const POOLTEST: bool = false; // inserts 2^POOLTEST_EXP Repecat strategies, which are just renamed Copycat to differentiate
 const POOLTEST_EXP: usize = 8;
 
@@ -16,7 +17,7 @@ const POOLTEST_EXP: usize = 8;
 const TABLE: [(i32,i32); 4] = [(-1,-1), (-1,3), 
                                (3,-1), (2,2)];
 
-pub const ROUNDS: u32 = 100;
+pub const ROUNDS: u32 = 1000;
 const _COPIES: u32 = 1;
 const MISPLAY_CHANCE: f64 = 0.05;
 
@@ -84,15 +85,15 @@ fn main() {
                 //play_threaded(&strategies[a], &strategies[a], ROUNDS)
                 play(&mut *strat_a, &mut *strat_b, ROUNDS)
             });
-            handles.push((handle.join(), (a,b)));
+            handles.push((handle, (a,b)));
         }
     }
     for result in handles {
-        match result.0 {
+        match result.0.join() {
             Ok(v) => { // scores for strategies (a, b)
                 scores[result.1.0] += v.0; scores[result.1.1] += v.1; // keep track of round scores
             },
-            Err(e) => println!("Thread error: {:?}", e),
+            Err(_) => println!("Thread error"),
         }
     }
 
