@@ -1,3 +1,3 @@
 use crate::*;
 
-retrieve_strategies!(pavlov, businessman, chancecat, leniant);
+retrieve_strategies!(businessman, chancecat, leniant);

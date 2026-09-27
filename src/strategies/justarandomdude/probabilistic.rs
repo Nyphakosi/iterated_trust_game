@@ -24,13 +24,13 @@ impl Strategy for Probamimic { // picks a random choice based on what opponent i
 }
 
 #[derive(Clone)]
-pub struct Predictor;
-impl fmt::Display for Predictor {
+pub struct Markov;
+impl fmt::Display for Markov {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Predictor")
+        write!(f, "Markov")
     }
 }
-impl Strategy for Predictor { // wip strat
+impl Strategy for Markov { // wip strat
     fn decide(&mut self, _memory: &[bool], history: &[bool]) -> bool {
         unimplemented!()
     }
