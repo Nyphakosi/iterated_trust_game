@@ -20,8 +20,8 @@ const TABLE: [(i32,i32); 4] = [(-1,-1), (-1, 3),
 // const TABLE: [(i32,i32); 4] = [(-1,-1), (-1, 1), 
 //                                ( 1,-1), ( 1, 1)];
 
-pub const ROUNDS: u32 = 1000;
-pub const COPIES: u32 = 4;
+pub const ROUNDS: u32 = 10000;
+pub const COPIES: u32 = 1;
 pub const MISPLAY_CHANCE: f64 = 0.05;
 
 //type Strategy = fn(&[bool], &[bool]) -> bool;
@@ -50,7 +50,7 @@ fn main() {
     let _core_count = num_cpus::get();
 
     let strategytypes: Vec<Box<dyn Strategy>> = strategies::retrieve_strategies(); // collect strategies from subfolders and files
-    let strategies = {
+    let strategies = if COPIES == 1 {
         let mut temp = vec![];
         for strat in strategytypes {
             for _ in 0..COPIES {
@@ -58,7 +58,7 @@ fn main() {
             }
         }
         temp
-    };
+    } else {strategytypes};
     let stratcount = strategies.len();
     let mut scores = vec![0; stratcount];
 

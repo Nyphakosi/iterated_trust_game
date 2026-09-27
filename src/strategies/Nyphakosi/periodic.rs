@@ -29,6 +29,5 @@ pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
             v.push(Box::new(Periodic(period, sequence as u32)))
         }
     }
-    //v.push(Box::new(DelayTest));
     v
 }

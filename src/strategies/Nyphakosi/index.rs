@@ -33,7 +33,7 @@ impl Strategy for Index2 { // always steals
     fn decide(&mut self, memory: &[bool], history: &[bool]) -> bool {
         if memory.len() < 2 {return self.0 & 0x10000 != 0}
         (
-            1 << (if  memory[ memory.len()-1] {1} else {0})
+            1 << (if  memory[ memory.len()-1] {1} else {0}) // note: bitshift operators are left-associative
               << (if history[history.len()-1] {1} else {0} << 1)
               << (if  memory[ memory.len()-2] {1} else {0} << 2)
               << (if history[history.len()-2] {1} else {0} << 3)
