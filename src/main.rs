@@ -10,6 +10,7 @@ const DELAYTEST: bool = false; // inserts the DelayTest strategy, which is gener
 const DELAYTEST_MS: u64 = 5; // ms per answer
 const POOLTEST: bool = false; // inserts 2^POOLTEST_EXP Repecat strategies, which are just renamed Copycat to differentiate
 const POOLTEST_EXP: usize = 8;
+const INDEXTWO:bool = false; // whether or not to push 131070 unique strategies to the pool
 
 //                (a,b)     a: steal  share      b:
 // const TABLE: [(i32,i32); 4] = [(2,2), (2,8),  // steal
@@ -20,8 +21,8 @@ const TABLE: [(i32,i32); 4] = [(-1,-1), (-1, 3),
 //                                ( 1,-1), ( 1, 1)];
 
 pub const ROUNDS: u32 = 1000;
-const COPIES: u32 = 1;
-const MISPLAY_CHANCE: f64 = 0.05;
+pub const COPIES: u32 = 4;
+pub const MISPLAY_CHANCE: f64 = 0.05;
 
 //type Strategy = fn(&[bool], &[bool]) -> bool;
 

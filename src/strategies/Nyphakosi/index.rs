@@ -1,5 +1,5 @@
 use std::fmt;
-use crate::Strategy;
+use crate::*;
 
 #[derive(Clone)]
 pub struct Index(u8); // index id from 0 to 31
@@ -20,6 +20,27 @@ impl Strategy for Index { // always steals
     }
 }
 
+// todo: create index with 2 turn memory
+
+#[derive(Clone)]
+pub struct Index2(u32); // index id from 0 to 131071
+impl fmt::Display for Index2 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Index2 ({})", self.0)
+    }
+}
+impl Strategy for Index2 { // always steals
+    fn decide(&mut self, memory: &[bool], history: &[bool]) -> bool {
+        if memory.len() < 2 {return self.0 & 0x10000 != 0}
+        (
+            1 << (if  memory[ memory.len()-1] {1} else {0})
+              << (if history[history.len()-1] {1} else {0} << 1)
+              << (if  memory[ memory.len()-2] {1} else {0} << 2)
+              << (if history[history.len()-2] {1} else {0} << 3)
+        ) & self.0 != 0
+    }
+}
+
 pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
     // vec![
     //                   &Index(1),  &Index(2),  &Index(3),  &Index(4),  &Index(5),  &Index(6),  &Index(7), 
@@ -30,6 +51,11 @@ pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
     let mut v: Vec<Box<dyn Strategy>> = vec![];
     for i in 1..31 {
         v.push(Box::new(Index(i)))
+    }
+    if INDEXTWO {
+        for i in 1..131070 {
+            v.push(Box::new(Index2(i)))
+        }
     }
     v
 }
