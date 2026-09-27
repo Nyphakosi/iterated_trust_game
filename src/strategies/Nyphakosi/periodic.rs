@@ -2,7 +2,7 @@ use std::fmt;
 use crate::Strategy;
 
 #[derive(Clone)]
-pub struct Periodic(usize, u32); // period, sequence of moves as a binary string
+struct Periodic(usize, u32); // period, sequence of moves as a binary string
 impl fmt::Display for Periodic {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let p = self.0; let b = self.1;

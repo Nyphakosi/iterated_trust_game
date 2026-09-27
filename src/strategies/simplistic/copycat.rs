@@ -2,7 +2,7 @@ use std::fmt;
 use crate::Strategy;
 
 #[derive(Clone)]
-pub struct Copycat;
+struct Copycat;
 impl fmt::Display for Copycat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Copycat")
@@ -15,7 +15,7 @@ impl Strategy for Copycat {// share, then opponent's last move
 }
 
 #[derive(Clone)]
-pub struct Anticat;
+struct Anticat;
 impl fmt::Display for Anticat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Anticat")

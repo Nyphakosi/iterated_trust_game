@@ -2,7 +2,7 @@ use std::fmt;
 use crate::Strategy;
 
 #[derive(Clone)]
-pub struct Simpleton;
+struct Simpleton;
 impl fmt::Display for Simpleton {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Simpleton")

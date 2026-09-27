@@ -3,7 +3,7 @@ use crate::Strategy;
 
 
 #[derive(Clone)]
-pub struct Random(f64); // chance to share
+struct Random(f64); // chance to share
 impl fmt::Display for Random {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Random ({})", self.0)

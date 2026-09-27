@@ -2,7 +2,7 @@ use std::{fmt, thread, time};
 use crate::*;
 
 #[derive(Clone)]
-pub struct DelayTest;
+struct DelayTest;
 impl fmt::Display for DelayTest {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "DelayTest")
@@ -16,7 +16,7 @@ impl Strategy for DelayTest { // generous, but delayed to test multithreading
 }
 
 #[derive(Clone)]
-pub struct Repecat;
+struct Repecat;
 impl fmt::Display for Repecat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Repecat")
@@ -27,7 +27,6 @@ impl Strategy for Repecat { // share, then opponent's last move, different name 
         *history.last().unwrap_or(&true)
     }
 }
-
 
 pub(super) fn retrieve_strategies() -> Vec<Box<dyn Strategy>> {
     let mut v: Vec<Box<dyn Strategy>> = vec![];

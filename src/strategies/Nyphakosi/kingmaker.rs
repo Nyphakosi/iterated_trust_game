@@ -7,7 +7,7 @@ const PEASANT_KEY: [bool; 8] = [false, true, false, true, true, true, false, fal
 
 
 #[derive(Clone)]
-pub struct Peasant(u8);
+struct Peasant(u8);
 impl fmt::Display for Peasant {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Peasant {}", self.0)
@@ -27,7 +27,7 @@ impl Strategy for Peasant { // if paired against Peasant, become generous, else 
 }
 
 #[derive(Clone)]
-pub struct King;
+struct King;
 impl fmt::Display for King {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "King")

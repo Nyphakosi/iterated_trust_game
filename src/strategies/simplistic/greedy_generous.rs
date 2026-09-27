@@ -2,7 +2,7 @@ use std::fmt;
 use crate::Strategy;
 
 #[derive(Clone)]
-pub struct Greedy;
+struct Greedy;
 impl fmt::Display for Greedy {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Greedy")
@@ -15,7 +15,7 @@ impl Strategy for Greedy { // always steals
 }
 
 #[derive(Clone)]
-pub struct Generous;
+struct Generous;
 impl fmt::Display for Generous {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Generous")

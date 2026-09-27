@@ -2,7 +2,7 @@ use std::fmt;
 use crate::Strategy;
 
 #[derive(Clone)]
-pub struct Pavlov;
+struct Pavlov;
 impl fmt::Display for Pavlov {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Pavlov")
@@ -15,7 +15,7 @@ impl Strategy for Pavlov {// share, then opponent's last move
 }
 
 #[derive(Clone)]
-pub struct Antipavlov;
+struct Antipavlov;
 impl fmt::Display for Antipavlov {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Antipavlov")

@@ -2,7 +2,7 @@ use std::fmt;
 use crate::Strategy;
 
 #[derive(Clone)]
-pub struct Delaycat(usize); // how many turns back to copy
+struct Delaycat(usize); // how many turns back to copy
 impl fmt::Display for Delaycat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Delaycat ({})", self.0)

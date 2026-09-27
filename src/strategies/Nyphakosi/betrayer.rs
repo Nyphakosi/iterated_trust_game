@@ -3,7 +3,7 @@ use crate::{ROUNDS, Strategy};
 
 
 #[derive(Clone)]
-pub struct Betrayer(f64); // percent of the game to share for
+struct Betrayer(f64); // percent of the game to share for
 impl fmt::Display for Betrayer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Betrayer ({})", self.0)

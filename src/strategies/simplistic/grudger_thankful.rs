@@ -2,7 +2,7 @@ use std::fmt;
 use crate::Strategy;
 
 #[derive(Clone)]
-pub struct Grudger(bool); // false = grudging
+struct Grudger(bool); // false = grudging
 impl fmt::Display for Grudger {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Grudger")
@@ -16,7 +16,7 @@ impl Strategy for Grudger { // generous, unless opponent steals, then greedy
 }
 
 #[derive(Clone)]
-pub struct Thankful(bool); // true = thanking
+struct Thankful(bool); // true = thanking
 impl fmt::Display for Thankful {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Thankful")

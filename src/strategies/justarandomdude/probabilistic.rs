@@ -2,7 +2,7 @@ use std::fmt;
 use crate::Strategy;
 
 #[derive(Clone)]
-pub struct Probamimic(u32, u32); // count of shares, steals
+struct Probamimic(u32, u32); // count of shares, steals
 impl fmt::Display for Probamimic {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Probamimic")
@@ -24,14 +24,14 @@ impl Strategy for Probamimic { // picks a random choice based on what opponent i
 }
 
 #[derive(Clone)]
-pub struct Markov;
+struct Markov;
 impl fmt::Display for Markov {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Markov")
     }
 }
 impl Strategy for Markov { // wip strat
-    fn decide(&mut self, _memory: &[bool], history: &[bool]) -> bool {
+    fn decide(&mut self, _memory: &[bool], _history: &[bool]) -> bool {
         unimplemented!()
     }
 }

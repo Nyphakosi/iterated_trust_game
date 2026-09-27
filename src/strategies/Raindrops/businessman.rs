@@ -3,7 +3,7 @@ use std::fmt;
 use crate::*;
 
 #[derive(Clone)]
-pub struct Businessman{
+struct Businessman{
     z: f64, // required confidence sigmas
     b: f64, // detect imbalanced samples by thresholding real stdev / ideal stdev
     decay: f64, // discount old impressions

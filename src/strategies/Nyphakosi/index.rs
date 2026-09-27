@@ -2,7 +2,7 @@ use std::fmt;
 use crate::*;
 
 #[derive(Clone)]
-pub struct Index(u8); // index id from 0 to 31
+struct Index(u8); // index id from 0 to 31
 impl fmt::Display for Index {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Index ({})", self.0)
@@ -20,10 +20,8 @@ impl Strategy for Index { // always steals
     }
 }
 
-// todo: create index with 2 turn memory
-
 #[derive(Clone)]
-pub struct Index2(u32); // index id from 0 to 131071
+struct Index2(u32); // index id from 0 to 131071
 impl fmt::Display for Index2 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Index2 ({})", self.0)
